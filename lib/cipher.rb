@@ -26,6 +26,20 @@ module SolitaireCipher
       output(hash)
     end
 
+    def generate_keystream(length)
+      deck = SolitaireCipher::Deck.new
+      result = []
+      while result.length < length
+				deck.move(:A)
+        2.times { deck.move(:B) }
+        deck.triple_cut
+        deck.count_cut
+        letter = deck.output_letter
+        result << letter unless letter.nil?
+      end
+      result.join
+    end
+
     def sanitize
       message.upcase
       .gsub(/[^A-Z]/, "")
@@ -43,42 +57,17 @@ module SolitaireCipher
     end
 
     def combine_message(message, keystream)
-      combined = [message, keystream]
-      combined = combined.transpose.map { |x| x.reduce(:+) }
-      combined.map { |x| alphabet_value(x) }
+      [message, keystream].transpose.map { |x| alphabet_value(x.reduce(:+)) }
     end
 
-    def uncombine_message message, keystream
-      prep = []
-      message.each_with_index do |x,i|
-        if x<=keystream[i]
-          prep<<x+26
-        else
-          prep<<x
-        end
-      end
-      combined = [prep, keystream]
-      combined = combined.transpose.map {|x| x.reduce(:-)}
+    def uncombine_message(message, keystream)
+      [message.map.with_index do |x,i|
+        x <= keystream[i] ? x + 26 : x
+      end, keystream].transpose.map {|x| x.reduce(:-)}
     end
 
     def map_to_letters(integers)
-      numbers = ALPHABET.invert
-      integers = integers.map { |integer| numbers[integer] }
-      integers.join
-    end
-
-    def generate_keystream(length)
-      deck = SolitaireCipher::Deck.new
-      result = []
-      while result.length < length
-        deck.move(:A)
-        2.times { deck.move(:B) }
-        deck.triple_cut
-        deck.count_cut
-        letter = deck.output_letter
-        result << letter unless letter.nil?
-      end
-      result.join
+      integers.map { |x| ALPHABET.invert[x] }.join
     end
 
     def alphabet_value(x)
