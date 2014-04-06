@@ -4,24 +4,24 @@ module SolitaireCipher
   class Cipher
     attr_reader :message
 
-    def initialize(message)
+    def initialize(message, key = nil)
       @message = message
     end
 
     def encrypt
-      letters = sanitize
-      message = map_to_numbers(letters)
+      letters = sanitize(message)
+      mapped_message = map_to_numbers(letters)
       keystream = map_to_numbers(generate_keystream(letters.length))
-      combination = combine_message(message, keystream)
+      combination = add(mapped_message, keystream)
       hash = map_to_letters(combination)
       output(hash)
     end
 
     def decrypt
-      letters = sanitize
-      message = map_to_numbers(letters)
+      letters = sanitize(message)
+      mapped_message = map_to_numbers(letters)
       keystream = map_to_numbers(generate_keystream(letters.length))
-      combination = uncombine_message(message, keystream)
+      combination = subtract(mapped_message, keystream)
       hash = map_to_letters(combination)
       output(hash)
     end
@@ -30,7 +30,7 @@ module SolitaireCipher
       deck = SolitaireCipher::Deck.new
       result = []
       while result.length < length
-				deck.move(:A)
+        deck.move(:A)
         2.times { deck.move(:B) }
         deck.triple_cut
         deck.count_cut
@@ -40,7 +40,7 @@ module SolitaireCipher
       result.join
     end
 
-    def sanitize
+    def sanitize(message)
       message.upcase
       .gsub(/[^A-Z]/, "")
       .scan(/.{1,5}/)
@@ -52,15 +52,11 @@ module SolitaireCipher
       text.scan(/.{5}/).join(" ")
     end
 
-    def map_to_numbers(string)
-      string.split(//).map { |char| ALPHABET[char] }
-    end
-
-    def combine_message(message, keystream)
+    def add(message, keystream)
       [message, keystream].transpose.map { |x| alphabet_value(x.reduce(:+)) }
     end
 
-    def uncombine_message(message, keystream)
+    def subtract(message, keystream)
       [message.map.with_index do |x,i|
         x <= keystream[i] ? x + 26 : x
       end, keystream].transpose.map {|x| x.reduce(:-)}
@@ -70,9 +66,12 @@ module SolitaireCipher
       integers.map { |x| ALPHABET.invert[x] }.join
     end
 
+    def map_to_numbers(string)
+      string.split(//).map { |char| ALPHABET[char] }
+    end
+
     def alphabet_value(x)
       x > 26 ? x % 26 : x
     end
-
   end
 end

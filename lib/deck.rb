@@ -9,31 +9,28 @@ module SolitaireCipher
     end
 
     def move(card)
-      index = @deck.index(card)
+      index = deck.index(card)
       if index < 53
-        @deck[index], @deck[index + 1] = @deck[index + 1], @deck[index]
+        @deck[index], @deck[index + 1] = deck[index + 1], deck[index]
       else
-        @deck = @deck[0,1] + @deck[-1,1] + @deck[1..-2]
+        @deck = deck[0,1] + deck[-1,1] + deck[1..-2]
       end
-      @deck
+      deck
     end
 
     def triple_cut
       top, bottom = joker_positions.min, joker_positions.max
-      @deck = @deck[(bottom+1)..-1] + @deck[top..bottom] + @deck[0...top]
+      @deck = deck[(bottom+1)..-1] + deck[top..bottom] + deck[0...top]
     end
 
     def count_cut
-      count = number_value(@deck[-1])
-      @deck = @deck[count..-2] + @deck[0,count] + @deck[-1,1]
+      count = number_value(deck[-1])
+      @deck = deck[count..-2] + deck[0,count] + deck[-1,1]
     end
 
     def output_letter
-      value = number_value(@deck.first)
-      card = @deck[value]
-      if card && !joker?(card)
-        return ALPHABET.invert[alphabet_value(card)]
-      end
+			card = deck[number_value(deck.first)]
+      ALPHABET.invert[alphabet_value(card)] if card && !joker?(card)
     end
 
     def joker?(card)
@@ -41,12 +38,11 @@ module SolitaireCipher
     end
 
     def joker_positions
-      [@deck.index(:A), @deck.index(:B)]
+      [deck.index(:A), deck.index(:B)]
     end
 
     def number_value(x)
-      return 53 if joker?(x)
-      return x
+      joker?(x) ? 53 : x
     end
 
     def alphabet_value(x)

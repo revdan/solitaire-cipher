@@ -1,6 +1,5 @@
 require 'spec_helper'
-require_relative '../lib/deck'
-require_relative '../lib/cipher'
+require_relative '../lib/solitaire_cipher'
 
 describe SolitaireCipher::Deck do
   let(:deck) { SolitaireCipher::Deck.new }
