@@ -8,6 +8,16 @@ module SolitaireCipher
       @deck = ORDERED_DECK.dup
     end
 
+    def key(key)
+      key.chars.each do |letter|
+        move(:A)
+        2.times { move(:B) }
+        triple_cut
+        count_cut
+        count_cut(ALPHABET[letter])
+      end
+    end
+
     def move(card)
       index = deck.index(card)
       if index < 53
@@ -23,8 +33,8 @@ module SolitaireCipher
       @deck = deck[(bottom+1)..-1] + deck[top..bottom] + deck[0...top]
     end
 
-    def count_cut
-      count = number_value(deck[-1])
+    def count_cut(number = nil)
+      count = number.nil? ? number_value(deck[-1]) : number
       @deck = deck[count..-2] + deck[0,count] + deck[-1,1]
     end
 

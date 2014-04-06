@@ -2,10 +2,11 @@ module SolitaireCipher
   ALPHABET = Hash[('A'..'Z').to_a.zip (1..26)].freeze
 
   class Cipher
-    attr_reader :message
+    attr_reader :message, :key
 
     def initialize(message, key = nil)
-      @message = message
+      @message  = message
+			@key = key.upcase unless key.nil?
     end
 
     def encrypt
@@ -28,6 +29,7 @@ module SolitaireCipher
 
     def generate_keystream(length)
       deck = SolitaireCipher::Deck.new
+			deck.key(key) unless key.nil?
       result = []
       while result.length < length
         deck.move(:A)
