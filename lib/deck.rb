@@ -2,30 +2,41 @@ module SolitaireCipher
   class Deck
     attr_accessor :deck
 
-    ORDERED_DECK = ((1..52).to_a << :A << :B).freeze
-
     def initialize
       @deck = ORDERED_DECK.dup
     end
 
-    def key(key)
-      key.chars.each do |letter|
+    def key_with(secret)
+      secret.chars.each do |letter|
         move(:A)
         2.times { move(:B) }
         triple_cut
         count_cut
         count_cut(ALPHABET[letter])
       end
+      deck
+    end
+
+    def key
+      move(:A)
+      2.times { move(:B) }
+      triple_cut
+      count_cut
+      deck
     end
 
     def move(card)
       index = deck.index(card)
-      if index < 53
-        @deck[index], @deck[index + 1] = deck[index + 1], deck[index]
-      else
-        @deck = deck[0,1] + deck[-1,1] + deck[1..-2]
-      end
+      index < 53 ? move_down(index) : move_to_top
       deck
+    end
+
+    def move_down(index)
+      @deck[index], @deck[index + 1] = deck[index + 1], deck[index]
+    end
+
+    def move_to_top
+      @deck = deck[0,1] + deck[-1,1] + deck[1..-2]
     end
 
     def triple_cut
@@ -33,18 +44,18 @@ module SolitaireCipher
       @deck = deck[(bottom+1)..-1] + deck[top..bottom] + deck[0...top]
     end
 
-    def count_cut(number = nil)
-      count = number.nil? ? number_value(deck[-1]) : number
+    def count_cut(position = nil)
+      count = position.nil? ? number_value(deck[-1]) : position
       @deck = deck[count..-2] + deck[0,count] + deck[-1,1]
     end
 
     def output_letter
-			card = deck[number_value(deck.first)]
-      ALPHABET.invert[alphabet_value(card)] if card && !joker?(card)
+      card = deck[number_value(deck.first)]
+      ALPHABET.invert[alphabet_value(card)] unless joker?(card)
     end
 
     def joker?(card)
-      !!([:A,:B].include? card )
+      [:A,:B].include?(card)
     end
 
     def joker_positions

@@ -2,7 +2,6 @@ require 'rspec/core/rake_task'
 require './lib/solitaire_cipher'
 RSpec::Core::RakeTask.new('spec')
 
-#TODO Clean up specs
 desc "Run tests"
 task :default => :spec
 

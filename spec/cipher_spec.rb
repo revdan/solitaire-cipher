@@ -4,13 +4,177 @@ require_relative '../lib/solitaire_cipher'
 describe SolitaireCipher::Cipher do
   let(:message) { "Code in Ruby, live longer!2"  }
   let(:cipher) { SolitaireCipher::Cipher.new(message) }
+  let(:secret) { "dan is awesome" }
 
   it "takes a message as a parameter" do
     expect(cipher.message).to eq message
   end
 
   describe "#encrypt" do
+    context "without a secret key" do
+      specify { cipher.encrypt.should == "GLNCQ MJAFF FVOMB JIYCB" }
+    end
 
+    context "with a secret key" do
+      let(:cipher) { SolitaireCipher::Cipher.new(message, secret) }
+      specify { cipher.encrypt.should == "ORSUZ SGKIQ NLRBA TQMVL" }
+    end
+
+    context "given Bruce's test vectors" do
+      describe "no key" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", nil) }
+        specify { cipher.encrypt.should == "EXKYI ZSGEH UNTIQ" }
+      end
+
+      describe "key of f" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "f") }
+        specify { cipher.encrypt.should == "XYIUQ BMHKK JBEGY" }
+      end
+
+      describe "key of fo" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "fo") }
+        specify { cipher.encrypt.should == "TUJYM BERLG XNDIW" }
+      end
+
+      describe "key of foo" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "foo") }
+        specify { cipher.encrypt.should == "ITHZU JIWGR FARMW" }
+      end
+
+      describe "key of a" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "a") }
+        specify { cipher.encrypt.should == "XODAL GSCUL IQNSC" }
+      end
+
+      describe "key of aa" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "aa") }
+        specify { cipher.encrypt.should == "OHGWM XXCAI MCIQP" }
+      end
+
+      describe "key of aaa" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "aaa") }
+        specify { cipher.encrypt.should == "DCSQY HBQZN GDRUT" }
+      end
+
+      describe "key of b" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "b") }
+        specify { cipher.encrypt.should == "XQEEM OITLZ VDSQS" }
+      end
+
+      describe "key of bc" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "bc") }
+        specify { cipher.encrypt.should == "QNGRK QIHCL GWSCE" }
+      end
+
+      describe "key of bcd" do
+        let(:cipher) { SolitaireCipher::Cipher.new("AAAAAAAAAAAAAAA", "bcd") }
+        specify { cipher.encrypt.should == "FMUBY BMAXH NQXCJ" }
+      end
+
+      describe "key of cryptonomicon" do
+        let(:cipher) { SolitaireCipher::Cipher.new("SOLITAIRE", "cryptonomicon") }
+        specify { cipher.encrypt.should == "KIRAK SFJAN" }
+      end
+    end
+  end
+
+  describe "#decrypt" do
+    context "without a key" do
+      let(:cipher) { SolitaireCipher::Cipher.new("GLNCQ MJAFF FVOMB JIYCB") }
+      specify { cipher.decrypt.should == "CODEI NRUBY LIVEL ONGER" }
+    end
+
+    context "with a key" do
+      let(:cipher) { SolitaireCipher::Cipher.new("ORSUZ SGKIQ NLRBA TQMVL", secret) }
+      specify { cipher.decrypt.should == "CODEI NRUBY LIVEL ONGER" }
+    end
+
+    context "with Ed's test vectors" do
+      describe "CLEPK HHNIY CFPWH FDFEH" do
+        let(:cipher) { SolitaireCipher::Cipher.new("CLEPK HHNIY CFPWH FDFEH", nil) }
+        specify { cipher.decrypt.should == "YOURC IPHER ISWOR KINGX" }
+      end
+
+      describe "ABVAW LWZSY OORYK DUPVH" do
+        let(:cipher) { SolitaireCipher::Cipher.new("ABVAW LWZSY OORYK DUPVH", nil) }
+        specify { cipher.decrypt.should == "WELCO METOR UBYQU IZXXX" }
+      end
+    end
+
+    context "given Bruce's test vectors" do
+      describe "no key" do
+        let(:cipher) { SolitaireCipher::Cipher.new("EXKYI ZSGEH UNTIQ", nil) }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of f" do
+        let(:cipher) { SolitaireCipher::Cipher.new("XYIUQ BMHKK JBEGY", "f") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of fo" do
+        let(:cipher) { SolitaireCipher::Cipher.new("TUJYM BERLG XNDIW", "fo") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of foo" do
+        let(:cipher) { SolitaireCipher::Cipher.new("ITHZU JIWGR FARMW", "foo") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of a" do
+        let(:cipher) { SolitaireCipher::Cipher.new("XODAL GSCUL IQNSC", "a") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of aa" do
+        let(:cipher) { SolitaireCipher::Cipher.new("OHGWM XXCAI MCIQP", "aa") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of aaa" do
+        let(:cipher) { SolitaireCipher::Cipher.new("DCSQY HBQZN GDRUT", "aaa") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of b" do
+        let(:cipher) { SolitaireCipher::Cipher.new("XQEEM OITLZ VDSQS", "b") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of bc" do
+        let(:cipher) { SolitaireCipher::Cipher.new("QNGRK QIHCL GWSCE", "bc") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of bcd" do
+        let(:cipher) { SolitaireCipher::Cipher.new("FMUBY BMAXH NQXCJ", "bcd") }
+        specify { cipher.decrypt.should == "AAAAA AAAAA AAAAA" }
+      end
+
+      describe "key of cryptonomicon" do
+        let(:cipher) { SolitaireCipher::Cipher.new("KIRAK SFJAN", "cryptonomicon") }
+        specify { cipher.decrypt.should == "SOLIT AIREX" }
+      end
+    end
+  end
+
+  describe '#generate_keystream' do
+    it "uses Deck to make an encryption key" do
+      expect(cipher.generate_keystream(10)).to eq "DWJXHYRFDG"
+    end
+
+    context "when a secret is given" do
+      let(:cipher) { SolitaireCipher::Cipher.new(message, secret) }
+      it "uses Deck to make a super-special encryption key" do
+        expect(cipher.generate_keystream(message.length)).to eq "LCOPQEOPGRBCVWOECFQTUTUUCSM"
+      end
+    end
+
+    it "doesn't fuck up with a large message for some unknown fucking reason" do
+      expect(cipher.generate_keystream(25)).to eq "DWJXHYRFDGTMSHPUURXJYWYHC"
+      expect(cipher.generate_keystream(25).length).to eq  25
+    end
   end
 
   describe "#sanitize" do
@@ -56,19 +220,17 @@ describe SolitaireCipher::Cipher do
   describe '#map_to_letters' do
     it "takes an array of integers and turns to letters based on corresponding position in alphabet" do
       combined_message = [7, 12, 14, 3, 17, 13, 10, 1, 6, 6, 6, 22, 15, 13, 2, 10, 9, 25, 3, 2]
-      expect(cipher.map_to_letters(combined_message)).to eq "GLNCQMJAFFFVOMBJIYCB"
+      expect(cipher.map_to_letters(combined_message)).to eq "GLNCQ MJAFF FVOMB JIYCB"
     end
   end
 
-  describe '#generate_keystream' do
-    it "uses Deck to make an encryption key" do
-      expect(cipher.generate_keystream(10)).to eq "DWJXHYRFDG"
+  describe "#alphabet_value" do
+    it "returns the same number when between 1 and 26" do
+      expect(cipher.alphabet_value(12)).to eq 12
     end
 
-    it "doesn't fuck up with a large message for some unknown fucking reason" do
-      expect(cipher.generate_keystream(25)).to eq "DWJXHYRFDGTMSHPUURXJYWYHC"
-      expect(cipher.generate_keystream(25).length).to eq  25
+    it "returns the number minus 26 when above 26" do
+      expect(cipher.alphabet_value(30)).to eq 4
     end
-
   end
 end
