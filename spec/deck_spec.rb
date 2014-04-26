@@ -4,26 +4,45 @@ require_relative '../lib/solitaire_cipher'
 describe SolitaireCipher::Deck do
   let(:deck) { SolitaireCipher::Deck.new }
   let(:cards) { SolitaireCipher::ORDERED_DECK }
+  let(:message) { "Code in Ruby, live longer!2"  }
+  let(:secret) { "dan is awesome" }
 
   it "initializes a deck" do
     expect(deck.deck).to eq cards
   end
 
-  describe "#key" do
+  describe "#key_deck" do
     it "keys the deck once" do
       deck.deck = cards.dup
 
-      expect(deck.key).to eq [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, :A, :B, 1]
-      expect(deck.key).to eq [51, :A, 1, :B, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52]
+      expect(deck.key_deck).to eq [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, :A, :B, 1]
+      expect(deck.key_deck).to eq [51, :A, 1, :B, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52]
     end
   end
 
-  describe "#key_with" do
+  describe "#key_deck_with" do
     it "keys the deck using the secret" do
       deck.deck = cards.dup
 
-      deck.key_with('a')
+      deck.key_deck_with('a')
       expect(deck.deck).to eq [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, :A, :B, 2, 1]
+    end
+  end
+
+  describe '#generate_keystream' do
+    it "makes an encryption key" do
+      expect(deck.generate_keystream(10)).to eq "DWJXHYRFDG"
+    end
+
+    context "when a secret is given" do
+      it "makes a super-special encryption key if the secret is given" do
+        expect(deck.generate_keystream(message.length, secret)).to eq "DJUHMAKDLJAAOJOWATMDBQLCWVC"
+      end
+    end
+
+    it "doesn't fuck up with a large message for some unknown fucking reason" do
+      expect(deck.generate_keystream(25)).to eq "DWJXHYRFDGTMSHPUURXJYWYHC"
+      expect(deck.generate_keystream(25).length).to eq  25
     end
   end
 
@@ -63,7 +82,7 @@ describe SolitaireCipher::Deck do
     it "uses the value of the first card on top of the deck and then counts down that many cards and converts the card to a letter" do
      deck.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, :A, :B, 1]
       expect(deck.output_letter).to eq 'D'
-      deck.key
+      deck.key_deck
       expect(deck.output_letter).to eq 'W'
     end
 
@@ -95,7 +114,7 @@ describe SolitaireCipher::Deck do
       deck.deck = cards.dup
       expect(deck.joker_positions).to eq [52,53]
 
-      deck.key
+      deck.key_deck
       expect(deck.joker_positions).to eq [51,52]
     end
   end

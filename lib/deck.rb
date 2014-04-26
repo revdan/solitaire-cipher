@@ -6,7 +6,7 @@ module SolitaireCipher
       @deck = ORDERED_DECK.dup
     end
 
-    def key_with(secret)
+    def key_deck_with(secret)
       secret.chars.each do |letter|
         move(:A)
         2.times { move(:B) }
@@ -17,12 +17,22 @@ module SolitaireCipher
       deck
     end
 
-    def key
+    def key_deck
       move(:A)
       2.times { move(:B) }
       triple_cut
       count_cut
       deck
+    end
+
+    def generate_keystream(length, secret = nil)
+      key_deck_with(secret) unless secret.nil?
+      keystream = []
+      while keystream.length < length
+        key_deck
+        keystream << output_letter unless output_letter.nil?
+      end
+      keystream.join
     end
 
     def move(card)
