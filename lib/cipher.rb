@@ -18,7 +18,7 @@ module SolitaireCipher
     def perform(method)
       msg = sanitize(message)
       ks = SolitaireCipher::Deck.new.generate_keystream(msg.length, secret)
-      map_to_letters(self.send(method, map_to_numbers(msg), map_to_numbers(ks)))
+      map_to_letters(send(method, map_to_numbers(msg), map_to_numbers(ks)))
     end
 
     def sanitize(message)
