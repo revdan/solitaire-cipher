@@ -159,24 +159,6 @@ describe SolitaireCipher::Cipher do
     end
   end
 
-  describe '#generate_keystream' do
-    it "uses Deck to make an encryption key" do
-      expect(cipher.generate_keystream(10)).to eq "DWJXHYRFDG"
-    end
-
-    context "when a secret is given" do
-      let(:cipher) { SolitaireCipher::Cipher.new(message, secret) }
-      it "uses Deck to make a super-special encryption key" do
-        expect(cipher.generate_keystream(message.length)).to eq "LCOPQEOPGRBCVWOECFQTUTUUCSM"
-      end
-    end
-
-    it "doesn't fuck up with a large message for some unknown fucking reason" do
-      expect(cipher.generate_keystream(25)).to eq "DWJXHYRFDGTMSHPUURXJYWYHC"
-      expect(cipher.generate_keystream(25).length).to eq  25
-    end
-  end
-
   describe "#sanitize" do
     context "when the number of letters is divisible by 5" do
       it "strips non-letter characters and upcases them" do

@@ -8,28 +8,17 @@ module SolitaireCipher
     end
 
     def encrypt
-      letters = sanitize(message)
-      keystream = generate_keystream(letters.length)
-      combination = add(map_to_numbers(letters), map_to_numbers(keystream))
-      map_to_letters(combination)
+      perform(:add)
     end
 
     def decrypt
-      letters = sanitize(message)
-      keystream = generate_keystream(letters.length)
-      combination = subtract(map_to_numbers(letters), map_to_numbers(keystream))
-      map_to_letters(combination)
+      perform(:subtract)
     end
 
-    def generate_keystream(length)
-      deck = SolitaireCipher::Deck.new
-      deck.key_with(secret) unless secret.nil?
-      keystream = []
-      while keystream.length < length
-        deck.key
-        keystream << deck.output_letter unless deck.output_letter.nil?
-      end
-      keystream.join
+    def perform(method)
+      msg = sanitize(message)
+      ks = SolitaireCipher::Deck.new.generate_keystream(msg.length, secret)
+      map_to_letters(send(method, map_to_numbers(msg), map_to_numbers(ks)))
     end
 
     def sanitize(message)
@@ -45,9 +34,7 @@ module SolitaireCipher
     end
 
     def subtract(message, keystream)
-      [message.map.with_index do |x,i|
-        x <= keystream[i] ? x + 26 : x
-      end, keystream].transpose.map { |x| x.reduce(:-) }
+      [number_value(message, keystream), keystream].transpose.map { |x| x.reduce(:-) }
     end
 
     def map_to_letters(integers)
@@ -60,6 +47,10 @@ module SolitaireCipher
 
     def alphabet_value(x)
       x > 26 ? x % 26 : x
+    end
+
+    def number_value(message, keystream)
+      message.map.with_index { |x,i| x <= keystream[i] ? x + 26 : x }
     end
   end
 end
